@@ -1,4 +1,4 @@
-package sgs.cs;
+package com.library;
 
 import com.vaadin.flow.theme.lumo.Lumo;
 import org.springframework.boot.SpringApplication;
