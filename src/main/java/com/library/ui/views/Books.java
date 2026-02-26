@@ -49,8 +49,5 @@ public class Books extends VerticalLayout {
         grid.addColumn(Book::getTitle).setHeader("Title").setSortable(true);
         grid.addColumn(Book::getAuthor).setHeader("Author").setSortable(true);
         grid.addColumn(Book::getIsbn).setHeader("ISBN");
-        grid.addItemClickListener(event -> {
-            getUI().ifPresent(ui -> ui.navigate("books/" + event.getItem().getId()));
-        });
     }
 }
