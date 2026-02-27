@@ -14,7 +14,6 @@ public class NewBook extends VerticalLayout {
     private final MockBookRepository bookRepo;
     private final Book book = new Book();
     private final BookForm bookForm = new BookForm();
-
     private final Button backBtn = new Button("Back to All Books", VaadinIcon.ARROW_LEFT.create());
 
     public NewBook(MockBookRepository bookRepo) {
@@ -34,7 +33,7 @@ public class NewBook extends VerticalLayout {
 
     private void saveBook(Book book) {
         bookRepo.save(book);
-        getUI().ifPresent(ui -> ui.navigate("books"));
+        getUI().ifPresent(ui -> ui.navigate("books?message=created"));
     }
 
 }

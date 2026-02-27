@@ -6,15 +6,15 @@ import com.library.ui.components.SearchBar;
 import com.library.ui.components.ViewToolbar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.Menu;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
 
 @Route("books")
 @PageTitle("Catalogue")
 @Menu(order = 1, icon = "vaadin:book", title = "Catalogue")
-public class Books extends VerticalLayout {
+public class Books extends VerticalLayout implements BeforeEnterObserver {
     private final MockBookRepository bookRepo;
 
     public Books(MockBookRepository bookRepo) {
@@ -38,5 +38,23 @@ public class Books extends VerticalLayout {
         ViewToolbar toolbar = new ViewToolbar("Catalogue", createBtn, searchBar);
 
         add(toolbar, grid);
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
+        var queryParams = beforeEnterEvent.getLocation().getQueryParameters().getParameters();
+        if(queryParams.containsKey("message")) {
+            String message = queryParams.get("message").getFirst();
+            switch (message) {
+                case "created":
+                    Notification.show("Book created!").addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                    break;
+                case "deleted":
+                    Notification.show("Book deleted!").addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }

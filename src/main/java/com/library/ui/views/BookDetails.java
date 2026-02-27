@@ -8,6 +8,8 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
@@ -58,6 +60,7 @@ public class BookDetails extends VerticalLayout implements HasUrlParameter<Long>
 
     private void saveBook(Book book) {
         bookRepo.save(book);
+        Notification.show("Book saved").addThemeVariants(NotificationVariant.LUMO_SUCCESS);
         setIsEditing(false);
     }
 
@@ -67,7 +70,7 @@ public class BookDetails extends VerticalLayout implements HasUrlParameter<Long>
 
     private void deleteBook(Book book) {
         bookRepo.delete(book);
-        getUI().ifPresent(ui -> ui.navigate("books"));
+        getUI().ifPresent(ui -> ui.navigate("books?message=deleted"));
     }
 
     private void configureButtons() {
