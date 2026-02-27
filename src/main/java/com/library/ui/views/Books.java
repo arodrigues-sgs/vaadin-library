@@ -4,6 +4,8 @@ import com.library.backend.MockBookRepository;
 import com.library.ui.components.BookGrid;
 import com.library.ui.components.SearchBar;
 import com.library.ui.components.ViewToolbar;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
@@ -25,10 +27,15 @@ public class Books extends VerticalLayout {
             getUI().ifPresent(ui -> ui.navigate("books/" + event.getItem().getId()));
         });
 
+        Button createBtn = new Button("Add New Book", VaadinIcon.PLUS.create());
+        createBtn.addClickListener(e -> {
+            getUI().ifPresent(ui -> ui.navigate("books/new"));
+        });
+
         // Eager search bar (refreshes data on keystroke)
         SearchBar searchBar = new SearchBar(grid::filter, true);
 
-        ViewToolbar toolbar = new ViewToolbar("Catalogue", searchBar);
+        ViewToolbar toolbar = new ViewToolbar("Catalogue", createBtn, searchBar);
 
         add(toolbar, grid);
     }
