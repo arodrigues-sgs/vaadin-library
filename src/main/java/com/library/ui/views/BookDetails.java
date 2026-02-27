@@ -6,6 +6,7 @@ import com.library.ui.components.BookForm;
 import com.library.ui.components.ViewToolbar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -24,70 +25,81 @@ public class BookDetails extends VerticalLayout implements HasUrlParameter<Long>
     private final Button backBtn = new Button("Back to All Books", VaadinIcon.ARROW_LEFT.create());
     private final Button editBtn = new Button(VaadinIcon.PENCIL.create());
     private final Button deleteBtn = new Button(VaadinIcon.TRASH.create());
-    private final Button saveBtn = new Button("Save");
-    private final Button cancelBtn = new Button("Cancel");
+
+    private final ViewToolbar toolbar = new ViewToolbar("Book Details", backBtn);
 
     public BookDetails(MockBookRepository bookRepo) {
         this.bookRepo = bookRepo;
+
+        configureLayout();
+        configureButtons();
     }
 
     @Override
     public void setParameter(BeforeEvent beforeEvent, Long bookId) {
         bookRepo.findById(bookId).ifPresentOrElse(
             (b) -> {
-                book = b;
-                showBookDetails();
+                this.book = b;
+                toolbar.setTitle(b.getTitle());
+                bookForm.setBook(b);
+                setIsEditing(false);
             },
             () -> beforeEvent.forwardTo("books")
         );
     }
 
-    private void showBookDetails() {
-        bookForm.getBinder().readBean(book);
-
-        configureButtons();
+    private void configureLayout() {
         setIsEditing(false);
         HorizontalLayout actions = new HorizontalLayout();
-        actions.add(editBtn, deleteBtn, saveBtn, cancelBtn);
+        actions.add(editBtn, deleteBtn);
 
-        add(new ViewToolbar(book.getTitle(), backBtn), bookForm, actions);
+        add(toolbar, bookForm, actions);
+    }
+
+    private void saveBook(Book book) {
+        bookRepo.save(book);
+        setIsEditing(false);
+    }
+
+    private void cancelEdit() {
+        setIsEditing(false);
+    }
+
+    private void deleteBook(Book book) {
+        bookRepo.delete(book);
+        getUI().ifPresent(ui -> ui.navigate("books"));
     }
 
     private void configureButtons() {
         // Styling
         deleteBtn.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_TERTIARY);
-        saveBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        cancelBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
         // Logic
         editBtn.addClickListener(e -> setIsEditing(true));
-        cancelBtn.addClickListener(e -> {
-            bookForm.getBinder().readBean(book); // Revert changes in UI
-            setIsEditing(false);
-        });
-
-        saveBtn.addClickListener(e -> {
-            if (bookForm.getBinder().writeBeanIfValid(book)) {
-                bookRepo.save(book);
-                setIsEditing(false);
-            }
-        });
 
         deleteBtn.addClickListener(e -> {
-            bookRepo.delete(book);
-            getUI().ifPresent(ui -> ui.navigate("books"));
+            ConfirmDialog dialog = new ConfirmDialog();
+            dialog.setHeader("Delete Book?");
+            dialog.setText("Are you sure you want to delete this book?");
+            dialog.setCancelable(true);
+            dialog.setConfirmText("Delete");
+            dialog.setConfirmButtonTheme("error primary");
+            dialog.addConfirmListener(event -> this.deleteBook(book));
+            dialog.open();
         });
 
         backBtn.addClickListener(e -> {
             getUI().ifPresent(ui -> ui.navigate("books"));
         });
+
+        bookForm.addSaveListener(this::saveBook);
+        bookForm.addCancelListener(this::cancelEdit);
     }
 
     private void setIsEditing(boolean isEditing) {
         editBtn.setVisible(!isEditing);
         deleteBtn.setVisible(!isEditing);
-        saveBtn.setVisible(isEditing);
-        cancelBtn.setVisible(isEditing);
         bookForm.setEditable(isEditing);
     }
+
 }

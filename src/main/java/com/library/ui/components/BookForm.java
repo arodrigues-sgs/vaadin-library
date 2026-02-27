@@ -1,13 +1,26 @@
 package com.library.ui.components;
 
 import com.library.backend.Book;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 
+import java.util.function.Consumer;
 
-public class BookForm extends FormLayout {
+
+public class BookForm extends VerticalLayout {
+    private Book book;
     private Binder<Book> binder;
+    private final FormLayout formLayout = new FormLayout();
+
+    private Consumer<Book> onSave;
+    private Runnable onCancel;
+    private final Button saveBtn = new Button("Save");
+    private final Button cancelBtn = new Button("Cancel");
 
     public BookForm() {
         this.binder = new Binder<>(Book.class);
@@ -16,22 +29,65 @@ public class BookForm extends FormLayout {
         TextField author = new TextField("Author");
         TextField isbn = new TextField("ISBN");
 
-        binder.forField(title).bind(Book::getTitle, Book::setTitle);
-        binder.forField(author).bind(Book::getAuthor, Book::setAuthor);
-        binder.forField(isbn).bind(Book::getIsbn, Book::setIsbn);
+        binder.forField(title)
+            .asRequired("Title cannot be empty")
+            .bind(Book::getTitle, Book::setTitle);
+        binder.forField(author)
+            .asRequired("Author cannot be empty")
+            .bind(Book::getAuthor, Book::setAuthor);
+        binder.forField(isbn)
+            .asRequired("ISBN cannot be empty")
+            .bind(Book::getIsbn, Book::setIsbn);
 
         // 1 column
-        setResponsiveSteps(new ResponsiveStep("0", 1));
+        formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+        formLayout.add(title, author, isbn);
 
-        add(title, author, isbn);
-
-        setEditable(false);
+        configureButtons();
+        add(formLayout, new HorizontalLayout(saveBtn, cancelBtn));
     }
 
-    public void setEditable(boolean editing) {
-        binder.getFields().forEach(field -> field.setReadOnly(!editing));
+    private void configureButtons() {
+        // Styling
+        saveBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        cancelBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+
+        // Logic
+        cancelBtn.addClickListener(e -> {
+            resetForm();
+            if(onCancel != null) onCancel.run();
+        });
+
+        saveBtn.addClickListener(e -> {
+            if (binder.writeBeanIfValid(book)) {
+                if(onSave != null) onSave.accept(book); // pass book to save listener
+            } else {
+                binder.validate();
+            }
+        });
     }
 
-    public Binder<Book> getBinder() { return binder; }
+    private void resetForm() {
+        binder.readBean(book);
+    }
+
+    public void addSaveListener(Consumer<Book> onSave) {
+        this.onSave = onSave;
+    }
+
+    public void addCancelListener(Runnable onCancel) {
+        this.onCancel = onCancel;
+    }
+
+    public void setEditable(boolean isEditing) {
+        binder.getFields().forEach(field -> field.setReadOnly(!isEditing));
+        saveBtn.setVisible(isEditing);
+        cancelBtn.setVisible(isEditing);
+    }
+
+    public void setBook(Book book) {
+        this.book = book;
+        binder.readBean(book);
+    }
 
 }

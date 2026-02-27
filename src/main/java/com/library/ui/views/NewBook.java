@@ -5,8 +5,7 @@ import com.library.backend.MockBookRepository;
 import com.library.ui.components.BookForm;
 import com.library.ui.components.ViewToolbar;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
@@ -16,39 +15,26 @@ public class NewBook extends VerticalLayout {
     private final Book book = new Book();
     private final BookForm bookForm = new BookForm();
 
-    private final Button saveBtn = new Button("Save");
-    private final Button cancelBtn = new Button("Cancel");
+    private final Button backBtn = new Button("Back to All Books", VaadinIcon.ARROW_LEFT.create());
 
     public NewBook(MockBookRepository bookRepo) {
         this.bookRepo = bookRepo;
 
-        bookForm.getBinder().readBean(book);
+        bookForm.setBook(book);
+        bookForm.addSaveListener(this::saveBook);
         bookForm.setEditable(true);
 
-        configureButtons();
+        backBtn.addClickListener(e -> {
+            getUI().ifPresent(ui -> ui.navigate("books"));
+        });
 
-        HorizontalLayout actions = new HorizontalLayout();
-        actions.add(saveBtn, cancelBtn);
-
-        add(new ViewToolbar("New Book", actions), bookForm);
+        add(new ViewToolbar("New Book", backBtn), bookForm);
 
     }
 
-    private void configureButtons() {
-        // Styling
-        saveBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        cancelBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-
-        saveBtn.addClickListener(e -> {
-            if (bookForm.getBinder().writeBeanIfValid(book)) {
-                bookRepo.save(book);
-                getUI().ifPresent(ui -> ui.navigate("books"));
-            }
-        });
-
-        cancelBtn.addClickListener(e -> {
-            getUI().ifPresent(ui -> ui.navigate("books"));
-        });
+    private void saveBook(Book book) {
+        bookRepo.save(book);
+        getUI().ifPresent(ui -> ui.navigate("books"));
     }
 
 }
