@@ -4,30 +4,23 @@ import com.library.backend.Book;
 import com.library.backend.MockBookRepository;
 import com.library.ui.components.BookForm;
 import com.library.ui.components.ViewToolbar;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
 @Route("books/new")
 public class NewBook extends VerticalLayout {
     private final MockBookRepository bookRepo;
-    private final Book book = new Book();
-    private final BookForm bookForm = new BookForm();
-    private final Button backBtn = new Button("Back to All Books", VaadinIcon.ARROW_LEFT.create());
 
     public NewBook(MockBookRepository bookRepo) {
         this.bookRepo = bookRepo;
 
-        bookForm.setBook(book);
+        BookForm bookForm = new BookForm();
+        bookForm.setBook(new Book());
         bookForm.addSaveListener(this::saveBook);
+        bookForm.addCancelListener(() -> getUI().ifPresent(ui -> ui.navigate("books")));
         bookForm.setEditable(true);
 
-        backBtn.addClickListener(e -> {
-            getUI().ifPresent(ui -> ui.navigate("books"));
-        });
-
-        add(new ViewToolbar("New Book", backBtn), bookForm);
+        add(new ViewToolbar("New Book"), bookForm);
 
     }
 
