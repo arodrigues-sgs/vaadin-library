@@ -2,6 +2,7 @@ package com.library.ui.views;
 
 import com.library.backend.Book;
 import com.library.backend.MockBookRepository;
+import com.library.security.Roles;
 import com.library.ui.components.BookForm;
 import com.library.ui.components.ViewToolbar;
 import com.vaadin.flow.component.button.Button;
@@ -12,19 +13,23 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Route;
-import org.atmosphere.interceptor.AtmosphereResourceStateRecovery;
+import com.vaadin.flow.spring.security.AuthenticationContext;
+import jakarta.annotation.security.PermitAll;
 
 @Route("books")
+@PermitAll
 public class BookDetails extends VerticalLayout implements HasUrlParameter<Long> {
     private final MockBookRepository bookRepo;
+    private final AuthenticationContext authContext;
 
     private Book book;
     private final BookForm bookForm = new BookForm();
     private Button editBtn = new Button("Edit");
     private Button deleteBtn = new Button("Delete");
 
-    public BookDetails(MockBookRepository bookRepo) {
+    public BookDetails(MockBookRepository bookRepo, AuthenticationContext authContext) {
         this.bookRepo = bookRepo;
+        this.authContext = authContext;
 
         bookForm.setEditable(false);
         bookForm.addSaveListener(this::saveBook);
@@ -45,6 +50,15 @@ public class BookDetails extends VerticalLayout implements HasUrlParameter<Long>
     }
 
     private void configureButtons() {
+        // hide and disable edit/delete buttons if not Admin
+        if(!authContext.hasRole(Roles.ADMIN)) {
+            editBtn.setVisible(false);
+            editBtn.setEnabled(false);
+            deleteBtn.setVisible(false);
+            deleteBtn.setEnabled(false);
+            return;
+        }
+
         // style
         editBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         deleteBtn.addThemeVariants(ButtonVariant.LUMO_ERROR);
