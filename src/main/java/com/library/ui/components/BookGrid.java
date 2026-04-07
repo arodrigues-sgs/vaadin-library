@@ -1,6 +1,6 @@
 package com.library.ui.components;
 
-import com.library.backend.Book;
+import com.library.backend.entities.Book;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import utils.StringUtils;

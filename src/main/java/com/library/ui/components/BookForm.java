@@ -1,6 +1,6 @@
 package com.library.ui.components;
 
-import com.library.backend.Book;
+import com.library.backend.entities.Book;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;

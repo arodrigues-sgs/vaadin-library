@@ -1,7 +1,7 @@
 package com.library.ui.views;
 
 import com.library.security.Roles;
-import com.library.security.UserDTO;
+import com.library.backend.dto.UserDTO;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;

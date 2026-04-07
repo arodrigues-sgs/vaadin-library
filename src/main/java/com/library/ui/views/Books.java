@@ -1,7 +1,7 @@
 package com.library.ui.views;
 
-import com.library.backend.Book;
-import com.library.backend.BookRepository;
+import com.library.backend.entities.Book;
+import com.library.backend.entities.BookRepository;
 import com.library.security.Roles;
 import com.library.ui.components.BookGrid;
 import com.library.ui.components.SearchBar;
