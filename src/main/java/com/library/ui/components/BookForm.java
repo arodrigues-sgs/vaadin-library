@@ -1,9 +1,11 @@
 package com.library.ui.components;
 
 import com.library.backend.entities.Book;
+import com.library.backend.entities.Branch;
 import com.library.backend.entities.Genre;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -19,6 +21,7 @@ public class BookForm extends VerticalLayout {
     private Binder<Book> binder;
 
     private final MultiSelectComboBox<Genre> genres = new MultiSelectComboBox<>("Genres");
+    private final ComboBox<Branch> branch = new ComboBox<>("Branch");
     private final FormLayout formLayout = new FormLayout();
     private final Button saveBtn = new Button("Save");
     private final Button cancelBtn = new Button("Cancel");
@@ -34,6 +37,7 @@ public class BookForm extends VerticalLayout {
         TextField isbn = new TextField("ISBN");
 
         genres.setItemLabelGenerator(Genre::getName);
+        branch.setItemLabelGenerator(Branch::getName);
 
         binder.forField(title)
                 .asRequired()
@@ -42,15 +46,15 @@ public class BookForm extends VerticalLayout {
                 .asRequired()
                 .bind(Book::getAuthor, Book::setAuthor);
         binder.forField(isbn)
-                .asRequired()
-                .withValidator(value -> value.length() == 10, "ISBN must be 10 digits")
                 .bind(Book::getIsbn, Book::setIsbn);
         binder.forField(genres)
                 .bind(Book::getGenres, Book::setGenres);
+        binder.forField(branch)
+                .bind(Book::getBranch, Book::setBranch);
 
         formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0",1));
 
-        formLayout.add(title, author, isbn, genres);
+        formLayout.add(title, author, isbn, genres, branch);
 
         configureButtons();
 
@@ -86,6 +90,10 @@ public class BookForm extends VerticalLayout {
         genres.setItems(availableGenres);
     }
 
+    public void setBranches(List<Branch> availableBranches) {
+        branch.setItems(availableBranches);
+    }
+
     public void resetForm() {
         binder.readBean(book);
     }
@@ -105,5 +113,6 @@ public class BookForm extends VerticalLayout {
         cancelBtn.setEnabled(isEditing);
         cancelBtn.setVisible(isEditing);
         genres.setEnabled(isEditing);
+        branch.setEnabled(isEditing);
     }
 }
