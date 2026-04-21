@@ -123,6 +123,6 @@ public class BookDetails extends VerticalLayout implements HasUrlParameter<Long>
 
     private void deleteBook(Book book) {
         bookRepo.delete(book);
-        getUI().ifPresent(ui -> ui.navigate("books"));
+        getUI().ifPresent(ui -> ui.navigate("books?message=deleted"));
     }
 }

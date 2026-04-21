@@ -33,6 +33,6 @@ public class NewBook extends VerticalLayout {
 
     private void saveBook(Book book) {
         bookRepo.save(book);
-        getUI().ifPresent(ui -> ui.navigate("books"));
+        getUI().ifPresent(ui -> ui.navigate("books?message=created"));
     }
 }
